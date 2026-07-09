@@ -1,3 +1,6 @@
+use mdrenderlib;
+
 fn main() {
-    println!("Hello, world!");
+    let n = mdrenderlib::add_numbers(1, 2);
+    println!("Hello, world! {}", n);
 }
