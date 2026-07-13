@@ -1,6 +1,12 @@
-use mdrenderlib;
+use mdrenderlib::parser::parser;
 
 fn main() {
-    let n = mdrenderlib::add_numbers(1, 2);
-    println!("Hello, world! {}", n);
+    let text = "
+        Line one, Line one.
+
+        Line two, line two.
+        ";
+
+    let parsee = parser::CommonmarkParser::new();
+    parsee.parse(text.to_string());
 }

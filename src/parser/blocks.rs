@@ -1,5 +1,12 @@
-pub struct Documents {
+pub struct Document {
     pub children: Vec<Block>,
+}
+impl Document {
+    pub fn new() -> Self {
+        Self {
+            children: Vec::new(),
+        }
+    }
 }
 
 pub enum ListKind {
