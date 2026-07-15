@@ -1,12 +1,13 @@
 use mdrenderlib::parser::parser;
 
 fn main() {
-    let text = "
-        Line one, Line one.
+    let text = "Line one, Line one.
+> > Line two, line two.
+Line three.
+";
 
-        Line two, line two.
-        ";
+    let mut parsee = parser::BlockParser::new();
+    parsee.parse_phase_one(text.to_string());
 
-    let parsee = parser::CommonmarkParser::new();
-    parsee.parse(text.to_string());
+    println!("{}", parsee);
 }

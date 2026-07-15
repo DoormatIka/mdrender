@@ -1,7 +1,77 @@
-pub struct Document {
-    pub children: Vec<Block>,
+use core::fmt;
+
+// the working structure the parser actually mutates.
+// indices used instead of addresses to avoid annoying the borrow checker.
+pub struct Arena {
+    nodes: Vec<OpenBlock>,
 }
-impl Document {
+impl Arena {
+    pub fn new() -> Self {
+        Self { nodes: Vec::new() }
+    }
+
+    // inserts a node and returns its index.
+    // pushes an index to the child's parent as well.
+    pub fn push(&mut self, block: OpenBlock) -> usize {
+        let idx = self.nodes.len();
+        if let Some(parent_idx) = block.parent {
+            self.nodes[parent_idx].children.push(idx);
+        }
+        self.nodes.push(block);
+
+        idx
+    }
+
+    pub fn get(&self, idx: usize) -> Option<&OpenBlock> {
+        self.nodes.get(idx)
+    }
+
+    pub fn get_mut(&mut self, idx: usize) -> Option<&mut OpenBlock> {
+        self.nodes.get_mut(idx)
+    }
+}
+
+pub struct OpenBlock {
+    pub kind: OpenBlockKind,
+    pub parent: Option<usize>,
+    pub children: Vec<usize>, // only meaningful for container kinds
+    pub is_open: bool,
+}
+impl OpenBlock {
+    pub fn new(kind: OpenBlockKind, parent: Option<usize>) -> Self {
+        Self {
+            kind,
+            parent,
+            children: Vec::new(),
+            is_open: true,
+        }
+    }
+}
+
+pub enum OpenBlockKind {
+    Document,
+    BlockQuote,
+    List(ListData),
+    ListItem,
+    Paragraph(Vec<String>),
+    Heading {
+        level: u8,
+        raw: String,
+    },
+    ThematicBreak,
+    CodeBlock {
+        info: Option<String>,
+        fenced: bool,
+        literal: String,
+    },
+    HtmlBlock(String),
+}
+
+////// finished phase 1 //////
+pub struct Document<T> {
+    pub children: Vec<T>,
+}
+impl<T> Document<T> {
     pub fn new() -> Self {
         Self {
             children: Vec::new(),
@@ -13,15 +83,19 @@ pub enum ListKind {
     Bullet,
     Ordered,
 }
+impl fmt::Display for ListKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ListKind::Bullet => writeln!(f, "[BULLET]"),
+            ListKind::Ordered => writeln!(f, "[ORDERED]"),
+        }
+    }
+}
+
 pub struct RawListData {
     pub kind: ListKind,
     pub loose: bool,
     pub items: Vec<RawBlock>,
-}
-pub struct ListData {
-    pub kind: ListKind,
-    pub loose: bool,
-    pub items: Vec<Block>,
 }
 
 pub enum RawBlock {
@@ -44,6 +118,8 @@ pub enum RawBlock {
     HtmlBlock(String),
 }
 
+///////////// finished phase 2 ////////////////
+
 pub enum Block {
     BlockQuote(Vec<Block>),
     List(ListData),
@@ -62,6 +138,12 @@ pub enum Block {
         literal: String,
     },
     HtmlBlock(String),
+}
+
+pub struct ListData {
+    pub kind: ListKind,
+    pub loose: bool,
+    pub items: Vec<Block>,
 }
 
 pub struct LinkContent {
