@@ -25,11 +25,23 @@ impl BlockParser {
         doc
     }
 
+    fn print_all_open_stack(&self) {
+        for index in self.open_stack.iter() {
+            let node = self.arena.get(*index);
+            if let Some(node) = node {
+                println!("{}", node);
+            }
+        }
+    }
+
     fn process_line(&mut self, line: &str) {
         let (depth, remainder) = self.match_open_blocks(line);
+        dbg!(remainder, &self.open_stack);
         self.close_blocks_below(depth);
         self.try_open_new_blocks(remainder, depth);
+        dbg!(remainder, &self.open_stack);
         self.append_text(remainder);
+        dbg!(remainder, &self.open_stack);
     }
 
     // checking for any open blocks, nothing inserted yet.
@@ -94,7 +106,6 @@ impl BlockParser {
 
         loop {
             if let Some(rem) = Self::match_block_quote(rest) {
-                println!("block quote: {}", rem);
                 let parent = *self.open_stack.last().unwrap();
                 let block = OpenBlock::new(OpenBlockKind::BlockQuote, Some(parent));
                 let idx = self.arena.push(block);

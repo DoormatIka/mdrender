@@ -47,11 +47,23 @@ impl OpenBlock {
         }
     }
 }
+impl fmt::Display for OpenBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "OpenBlock {{")?;
+        writeln!(f, "   kind: {}", self.kind)?;
+        writeln!(f, "   is_open: {}", self.is_open)?;
+        writeln!(f, "   parent: {:?}", self.parent)?;
+        writeln!(f, "   children: {:?}", self.children)?;
+        writeln!(f, "OpenBlock }}")?;
+
+        Ok(())
+    }
+}
 
 pub enum OpenBlockKind {
     Document,
     BlockQuote,
-    List(ListData),
+    List(ListData<RawBlock>),
     ListItem,
     Paragraph(Vec<String>),
     Heading {
@@ -65,6 +77,23 @@ pub enum OpenBlockKind {
         literal: String,
     },
     HtmlBlock(String),
+}
+impl fmt::Display for OpenBlockKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Document => writeln!(f, "[DOCUMENT]"),
+            Self::BlockQuote => writeln!(f, "[BLOCK QUOTE]"),
+            Self::List(data) => {
+                let items: Vec<String> = data.items.iter().map(|v| v.to_string()).collect();
+                writeln!(
+                    f,
+                    "[LIST (kind: {}, loose: {}, items: {:?})]",
+                    data.kind, data.loose, items
+                )
+            }
+            _ => todo!(),
+        }
+    }
 }
 
 ////// finished phase 1 //////
@@ -118,11 +147,47 @@ pub enum RawBlock {
     HtmlBlock(String),
 }
 
+impl fmt::Display for RawBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::BlockQuote(blocks) => {
+                let mut s = String::from("[Block Quote]");
+                for block in blocks.iter() {
+                    s.push_str(format!("\n  {}", block).as_str());
+                }
+                f.write_str(s.as_str())
+            }
+            Self::List(data) => {
+                let items: Vec<String> = data.items.iter().map(|v| v.to_string()).collect();
+                writeln!(
+                    f,
+                    "[Raw List (kind: {}, loose: {}, items: {:?})]",
+                    data.kind, data.loose, items
+                )
+            }
+            Self::ListItem(items) => {
+                let mut s = String::from("[List Item]");
+                for block in items.iter() {
+                    s.push_str(format!("\n  {}", block).as_str());
+                }
+                f.write_str(s.as_str())
+            }
+            Self::Paragraph(s) => {
+                let s = s.join("\n");
+                writeln!(f, "{}", s)?;
+
+                Ok(())
+            }
+            _ => todo!(),
+        }
+    }
+}
+
 ///////////// finished phase 2 ////////////////
 
 pub enum Block {
     BlockQuote(Vec<Block>),
-    List(ListData),
+    List(ListData<Block>),
     ListItem(Vec<Block>),
 
     Paragraph(Vec<Inline>),
@@ -140,10 +205,10 @@ pub enum Block {
     HtmlBlock(String),
 }
 
-pub struct ListData {
+pub struct ListData<T> {
     pub kind: ListKind,
     pub loose: bool,
-    pub items: Vec<Block>,
+    pub items: Vec<T>,
 }
 
 pub struct LinkContent {
