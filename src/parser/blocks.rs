@@ -106,11 +106,16 @@ impl fmt::Display for OpenBlockKind {
 pub struct Document<T> {
     pub children: Vec<T>,
 }
-impl<T> Document<T> {
-    pub fn new() -> Self {
+impl<T> Default for Document<T> {
+    fn default() -> Self {
         Self {
             children: Vec::new(),
         }
+    }
+}
+impl<T> Document<T> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
