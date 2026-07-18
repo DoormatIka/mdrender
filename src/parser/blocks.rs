@@ -49,12 +49,12 @@ impl OpenBlock {
 }
 impl fmt::Display for OpenBlock {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "OpenBlock {{")?;
-        writeln!(f, "   kind: {}", self.kind)?;
-        writeln!(f, "   is_open: {}", self.is_open)?;
-        writeln!(f, "   parent: {:?}", self.parent)?;
-        writeln!(f, "   children: {:?}", self.children)?;
-        writeln!(f, "OpenBlock }}")?;
+        writeln!(f, "   OpenBlock {{")?;
+        writeln!(f, "       kind: {}", self.kind)?;
+        writeln!(f, "       is_open: {}", self.is_open)?;
+        writeln!(f, "       parent: {:?}", self.parent)?;
+        writeln!(f, "       children: {:?}", self.children)?;
+        writeln!(f, "   }}")?;
 
         Ok(())
     }
@@ -81,15 +81,21 @@ pub enum OpenBlockKind {
 impl fmt::Display for OpenBlockKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Document => writeln!(f, "[DOCUMENT]"),
-            Self::BlockQuote => writeln!(f, "[BLOCK QUOTE]"),
+            Self::Document => write!(f, "[DOCUMENT]"),
+            Self::BlockQuote => write!(f, "[BLOCK QUOTE]"),
             Self::List(data) => {
                 let items: Vec<String> = data.items.iter().map(|v| v.to_string()).collect();
-                writeln!(
+                write!(
                     f,
                     "[LIST (kind: {}, loose: {}, items: {:?})]",
                     data.kind, data.loose, items
                 )
+            }
+            Self::Paragraph(s) => {
+                let s = s.join("\n");
+                write!(f, "[PARAGRAPH - {}]", s)?;
+
+                Ok(())
             }
             _ => todo!(),
         }

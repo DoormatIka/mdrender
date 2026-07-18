@@ -1,13 +1,11 @@
 use mdrenderlib::parser::parser;
+use std::fs;
 
 fn main() {
-    let text = "Line one, Line one.
-> > Line two, line two.
-Line three.
-";
+    let contents = fs::read_to_string("tests/bless.txt").unwrap();
 
     let mut parsee = parser::BlockParser::new();
-    parsee.parse_phase_one(text.to_string());
+    parsee.parse_phase_one(contents);
 
     println!("{}", parsee);
 }

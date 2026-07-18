@@ -1,0 +1,7 @@
+
+- - - - 	 -
+Last line!
+Last line for real, no lazy continuation yet so this should be in a separate paragraph.
+----
+*****
+**
