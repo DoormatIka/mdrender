@@ -1,7 +1,20 @@
 
-- - - - 	 -
-Last line!
-Last line for real, no lazy continuation yet so this should be in a separate paragraph.
+paragraph test
+second sentence
+
+spaced out paragraph
+
+thematic block for dashes
 ----
+
+thematic block for asterisks
 *****
+
+thematic block for underscores
+____
+
+thematic block with varying spacing
+- - - - 	 -
+
+incomplete thematic block
 **
