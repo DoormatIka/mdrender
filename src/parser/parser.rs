@@ -87,9 +87,8 @@ impl BlockParser {
         if line.trim().is_empty() {
             return None;
         }
-        if Self::match_block_quote(line).is_some()
-            || Self::match_thematic_break(line).is_some()
-            || Self::match_heading(line).is_some()
+        if Self::match_block_quote(line).is_some() || Self::match_thematic_break(line).is_some()
+        // || Self::match_heading(line).is_some()
         {
             return None;
         }
