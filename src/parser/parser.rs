@@ -1,5 +1,3 @@
-use std::ops::SubAssign;
-
 use crate::parser::blocks::{Arena, Document, OpenBlock, OpenBlockKind, RawBlock};
 
 pub struct BlockParser {
@@ -23,8 +21,8 @@ impl BlockParser {
     pub fn parse_phase_one(&mut self, input: String) -> Document<RawBlock> {
         let doc = Document::<RawBlock>::new();
 
+        let input = input.replace("\u{0000}", "\u{FFFD}");
         for line in input.lines() {
-            // println!("[Looking at line: {}]", line);
             self.process_line(line);
         }
         self.close_blocks_below(0); // to close the document struct

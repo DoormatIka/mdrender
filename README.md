@@ -8,8 +8,6 @@ Implementation based on [Commonmark 0.31.2](https://spec.commonmark.org/0.31.2).
 
 - [ ] Preliminiaries:
   - [ ] Insecure Characters
-  - [ ] Backslash Escapes
-- [ ] Entity and numeric character references
 - [ ] Container blocks
   - [x] Block quotes
   - [ ] List items
@@ -25,6 +23,8 @@ Implementation based on [Commonmark 0.31.2](https://spec.commonmark.org/0.31.2).
   - [x] Paragraphs
   - [x] Blank lines
 - [ ] Inlines
+  - [ ] Backslash Escapes
+  - [ ] Entity and numeric character references
   - [ ] Code spans
   - [ ] Emphasis and strong emphasis
   - [ ] Links
