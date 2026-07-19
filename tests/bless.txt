@@ -1,4 +1,28 @@
 
+# h1
+## h2
+### h3
+#### h4
+##### h5 #####
+****
+###### h6 ##
+
+###
+
+#                          ignored trailing spaces
+
+   # indent check spaces
+     # too much checked spaces
+
+#hashtag
+#5 bolt, (should be paragraph.)
+
+########## more than h6 is not included. #####
+
+## ## spaced out, should be h2 ##
+
+###### h6?? 
+
 paragraph test
 second sentence
 
@@ -18,3 +42,13 @@ thematic block with varying spacing
 
 incomplete thematic block
 **
+
+> block quote
+>
+> connected block quote idk what this is.
+> > another block quote inside
+
+> > completely separate block quote
+
+> > *******
+> > is this an edge case- wait no holy shit you can put thematic breaks inside block quotes
