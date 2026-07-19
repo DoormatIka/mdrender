@@ -87,8 +87,9 @@ impl BlockParser {
         if line.trim().is_empty() {
             return None;
         }
-        if Self::match_block_quote(line).is_some() || Self::match_thematic_break(line).is_some()
-        // || Self::match_heading(line).is_some()
+        if Self::match_block_quote(line).is_some()
+            || Self::match_thematic_break(line).is_some()
+            || Self::match_atx_heading(line).is_some()
         {
             return None;
         }
@@ -103,23 +104,45 @@ impl BlockParser {
         Some(&line[indent..])
     }
 
-    fn match_heading(line: &str) -> Option<(u8, &str)> {
+    fn match_atx_heading(line: &str) -> Option<(u8, &str)> {
+        // - [ ] "A closing sequence of # characters is optional."
+        // - [ ] "The closing sequence must be preceded by a space or tab."
+        // - [ ] "ATX headings can be empty."
+        //
         let trimmed = Self::check_indent(line)?;
         let mut level = 0;
 
         let mut previous_char = ' ';
+        let mut last_left_index = 0;
         for (i, ch) in trimmed.chars().enumerate() {
-            if previous_char != ch {
+            if level > 6 {
+                return None;
+            }
+
+            if previous_char != ch && ch != ' ' {
                 level = 0;
             }
             if ch == '#' {
                 level += 1;
+            } else {
+                if ch != ' ' {
+                    return None; // checking for stuff like #hashtags
+                }
+                last_left_index = i;
+                break;
             }
 
             previous_char = ch;
         }
 
-        Some((level, trimmed))
+        let mut end_header_cut_index = 0;
+
+        let text = &trimmed[last_left_index..].trim();
+        if text.chars().count() == 0 {
+            return None;
+        }
+
+        Some((level, text))
     }
 
     fn match_thematic_break(line: &str) -> Option<&str> {
@@ -186,8 +209,7 @@ impl BlockParser {
 
                 continue;
             }
-            /*
-            if let Some((level, raw)) = Self::match_heading(rest) {
+            if let Some((level, raw)) = Self::match_atx_heading(rest) {
                 let parent = *self.open_stack.last().unwrap();
                 let mut block = OpenBlock::new(
                     OpenBlockKind::Heading {
@@ -203,7 +225,6 @@ impl BlockParser {
 
                 break;
             }
-            */
             if Self::match_thematic_break(rest).is_some() {
                 let parent = *self.open_stack.last().unwrap();
                 let mut block = OpenBlock::new(OpenBlockKind::ThematicBreak, Some(parent));
