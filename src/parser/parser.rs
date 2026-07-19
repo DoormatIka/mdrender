@@ -1,3 +1,5 @@
+use std::ops::SubAssign;
+
 use crate::parser::blocks::{Arena, Document, OpenBlock, OpenBlockKind, RawBlock};
 
 pub struct BlockParser {
@@ -105,44 +107,43 @@ impl BlockParser {
     }
 
     fn match_atx_heading(line: &str) -> Option<(u8, &str)> {
-        // - [ ] "A closing sequence of # characters is optional."
-        // - [ ] "The closing sequence must be preceded by a space or tab."
-        // - [ ] "ATX headings can be empty."
-        //
         let trimmed = Self::check_indent(line)?;
-        let mut level = 0;
+        let trimmed = trimmed.trim_end();
 
-        let mut previous_char = ' ';
-        let mut last_left_index = 0;
-        for (i, ch) in trimmed.chars().enumerate() {
-            if level > 6 {
-                return None;
-            }
-
-            if previous_char != ch && ch != ' ' {
-                level = 0;
-            }
-            if ch == '#' {
-                level += 1;
-            } else {
-                if ch != ' ' {
-                    return None; // checking for stuff like #hashtags
-                }
-                last_left_index = i;
-                break;
-            }
-
-            previous_char = ch;
-        }
-
-        let mut end_header_cut_index = 0;
-
-        let text = &trimmed[last_left_index..].trim();
-        if text.chars().count() == 0 {
+        // count leading #'s for heading level
+        let level = trimmed.chars().take_while(|&c| c == '#').count();
+        if level == 0 || level > 6 {
             return None;
         }
+        let after_hashes = &trimmed[level..];
 
-        Some((level, text))
+        // followed by whitespace, rules out #hashtag
+        let text = match after_hashes.strip_prefix([' ', '\t']) {
+            Some(rest) => rest.trim(),
+            None if after_hashes.is_empty() => "",
+            None => return None,
+        };
+
+        let text = Self::strip_closing_hashes(text);
+
+        Some((level as u8, text))
+    }
+
+    fn strip_closing_hashes(text: &str) -> &str {
+        let trimmed_hashes = text.trim_end_matches('#');
+        let hash_count = text.len() - trimmed_hashes.len();
+
+        // no trailing '#'s, or none were stripped at all: nothing to do
+        if hash_count == 0 {
+            return text;
+        }
+
+        // closing sequence must be preceded by whitespace (or be the whole string)
+        match trimmed_hashes.chars().last() {
+            None => trimmed_hashes,
+            Some(c) if c.is_whitespace() => trimmed_hashes.trim_end(),
+            _ => text, // e.g. "hi#", not a valid closing sequence
+        }
     }
 
     fn match_thematic_break(line: &str) -> Option<&str> {
