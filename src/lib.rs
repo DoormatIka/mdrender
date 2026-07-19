@@ -1,4 +1,4 @@
-pub mod parser;
+pub mod block;
 pub mod renderers;
 
 pub fn add_numbers(a: i32, b: i32) -> i32 {

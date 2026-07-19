@@ -1,4 +1,4 @@
-use mdrenderlib::parser::parser;
+use mdrenderlib::block::parser;
 use std::fs;
 
 fn main() {

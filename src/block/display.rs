@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::parser::{blocks::OpenBlockKind, parser::BlockParser};
+use crate::block::{blocks::OpenBlockKind, parser::BlockParser};
 
 impl fmt::Display for BlockParser {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

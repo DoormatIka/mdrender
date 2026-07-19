@@ -2,12 +2,13 @@ use core::fmt;
 
 // the working structure the parser actually mutates.
 // indices used instead of addresses to avoid annoying the borrow checker.
+#[derive(Default)]
 pub struct Arena {
     nodes: Vec<OpenBlock>,
 }
 impl Arena {
     pub fn new() -> Self {
-        Self { nodes: Vec::new() }
+        Self::default()
     }
 
     // inserts a node and returns its index.
