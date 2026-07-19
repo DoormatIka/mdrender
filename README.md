@@ -7,7 +7,7 @@ A rust-based markdown renderer that generates an Abstract Syntax Tree that can b
 Implementation based on [Commonmark 0.31.2](https://spec.commonmark.org/0.31.2).
 
 - [ ] Preliminiaries:
-  - [ ] Insecure Characters
+  - [x] Insecure Characters
 - [ ] Container blocks
   - [x] Block quotes
   - [ ] List items
